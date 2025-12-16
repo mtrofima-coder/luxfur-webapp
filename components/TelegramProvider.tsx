@@ -35,30 +35,32 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 
         // Listen for theme changes
         const webApp = window.Telegram?.WebApp;
-        if (webApp?.onEvent) {
-          const handleThemeChange = () => {
-            const newTheme = getTelegramTheme();
-            if (newTheme === "light") {
-              html.classList.remove("dark");
-            } else {
-              html.classList.add("dark");
-            }
-          };
+        if (webApp) {
+          const webAppAny = webApp as any;
+          if (webAppAny?.onEvent) {
+            const handleThemeChange = () => {
+              const newTheme = getTelegramTheme();
+              if (newTheme === "light") {
+                html.classList.remove("dark");
+              } else {
+                html.classList.add("dark");
+              }
+            };
 
-          webApp.onEvent("themeChanged", handleThemeChange);
+            webAppAny.onEvent("themeChanged", handleThemeChange);
 
-          // Listen for viewport changes to expand
-          webApp.onEvent("viewportChanged", () => {
-            if (webApp.expand) {
-              webApp.expand();
-            }
-          });
+            // Listen for viewport changes to expand
+            webAppAny.onEvent("viewportChanged", () => {
+              if (webApp.expand) {
+                webApp.expand();
+              }
+            });
 
-          return () => {
-            if (webApp.offEvent) {
-              webApp.offEvent("themeChanged", handleThemeChange);
-            }
-          };
+            return () => {
+              webAppAny?.offEvent?.("themeChanged", handleThemeChange);
+              webAppAny?.offEvent?.("viewportChanged", handleThemeChange);
+            };
+          }
         }
       }
       setIsInitialized(true);

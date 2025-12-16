@@ -69,10 +69,11 @@ export function useTelegram(): UseTelegramReturn {
       setTheme(getTelegramTheme());
     };
 
-    // Telegram WebApp events
-    if (app.onEvent) {
-      app.onEvent("themeChanged", handleThemeChange);
-      app.onEvent("viewportChanged", () => {
+    // Telegram WebApp events - use safe cast for onEvent/offEvent
+    const appAny = app as any;
+    if (appAny?.onEvent) {
+      appAny.onEvent("themeChanged", handleThemeChange);
+      appAny.onEvent("viewportChanged", () => {
         app.expand();
       });
     }
@@ -81,9 +82,7 @@ export function useTelegram(): UseTelegramReturn {
 
     // Cleanup
     return () => {
-      if (app.offEvent) {
-        app.offEvent("themeChanged", handleThemeChange);
-      }
+      appAny?.offEvent?.("themeChanged", handleThemeChange);
     };
   }, []);
 
